@@ -1,6 +1,8 @@
 package com.teamtreehouse.db;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.function.Consumer;
 
 
 public class LegacyDatabase implements AutoCloseable {
@@ -11,6 +13,20 @@ public class LegacyDatabase implements AutoCloseable {
     System.out.println("LegacyDatabase::new was called");
     this.dbString = dbString;
     conn = new Connection();
+  }
+
+  public static void withConnection(ConnectionConsumer action) {
+    try (LegacyDatabase db = LegacyDatabase.fromConfig();) {
+      Connection conn = db.getConnection();
+      // Sometimes connection comes back closed, make sure it is opened before using it.
+      if (!conn.isOpen()) {
+        conn.open();
+      }
+      action.accept(conn);
+    } catch(Exception e) {
+      System.err.println("Problem cleaning up database:  " + e);
+
+    }
   }
 
   public static LegacyDatabase fromConfig() {
