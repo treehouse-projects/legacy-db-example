@@ -12,8 +12,8 @@ public class Application {
     // ============================================================
     // Imagine this repeated hundreds of times in your code base...
     // ============================================================
-    LegacyDatabase db = LegacyDatabase.fromConfig();
-    try {
+
+    try (LegacyDatabase db = LegacyDatabase.fromConfig();) {
       Connection conn = db.getConnection();
       // Sometimes connection comes back closed, make sure it is opened before using it.
       if (!conn.isOpen()) {
@@ -23,15 +23,8 @@ public class Application {
       for (String row : results) {
         System.out.println(row);
       }
-    } catch (IOException e) {
-      System.err.println("Problem with connection: "  + e);
-    } finally {
-      // Don't forget to close cleanup the resources
-      try {
-        db.cleanUp();
-      } catch (IOException e) {
-        System.err.println("Problem cleaning up database:  " + e);
-      }
+    } catch(Exception e) {
+      System.err.println("Problem cleaning up database:  " + e);
 
     }
   }
